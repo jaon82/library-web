@@ -5,6 +5,8 @@ import {
   responsiveFontSizes,
   ThemeProvider,
 } from '@material-ui/core/styles';
+import Container from '@material-ui/core/Container';
+import Header from './Header';
 
 let theme = createMuiTheme({
   palette: {
@@ -19,7 +21,10 @@ const Layout: React.FC = ({ children }) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      {children}
+      <Container maxWidth="lg">
+        <Header />
+        {children}
+      </Container>
     </ThemeProvider>
   );
 };
