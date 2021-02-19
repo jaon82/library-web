@@ -18,6 +18,8 @@ import InputLabel from '@material-ui/core/InputLabel';
 import Book from '../../interfaces/Book';
 import api from '../../services/api';
 import Author from '../../interfaces/Author';
+import { useLoader } from '../../hooks/loader';
+import { useToast } from '../../hooks/toast';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -46,6 +48,8 @@ interface RouteParams {
 const BookForm: React.FC = () => {
   const classes = useStyles();
   const history = useHistory();
+  const { showLoader, hideLoader } = useLoader();
+  const { addToast } = useToast();
   const params = useParams<RouteParams>();
   const [authors, setAuthors] = useState<Author[]>([]);
 
@@ -68,13 +72,34 @@ const BookForm: React.FC = () => {
   });
 
   const onSubmit = async (data: Book) => {
-    if (params.id) {
-      const book = { ...data, id: Number(params.id) };
-      await api.put(`/books/${params.id}`, book);
-    } else {
-      await api.post(`/books`, data);
+    try {
+      showLoader();
+      if (params.id) {
+        const book = { ...data, id: Number(params.id) };
+        await api.put(`/books/${params.id}`, book);
+        addToast({
+          type: 'success',
+          title: 'Edição realizada!',
+          description: 'Livro alterado com sucesso',
+        });
+      } else {
+        await api.post(`/books`, data);
+        addToast({
+          type: 'success',
+          title: 'Cadastro realizado!',
+          description: 'Livro cadastrado com sucesso',
+        });
+      }
+      history.push('/');
+    } catch {
+      addToast({
+        type: 'error',
+        title: 'Erro na requisição',
+        description: 'Ocorreu um erro na requisição, tente novamente.',
+      });
+    } finally {
+      hideLoader();
     }
-    history.push('/');
   };
 
   const handleCancel = useCallback(() => {
@@ -101,10 +126,22 @@ const BookForm: React.FC = () => {
   }, [history, params.id, reset]);
 
   useEffect(() => {
-    api.get<Author[]>(`/authors`).then(response => {
-      setAuthors(response.data);
-    });
-  }, []);
+    showLoader();
+    api
+      .get<Author[]>(`/authors`)
+      .then(response => {
+        setAuthors(response.data);
+        hideLoader();
+      })
+      .catch(() => {
+        addToast({
+          type: 'error',
+          title: 'Erro na requisição',
+          description: 'Ocorreu um erro ao buscar os dados, tente novamente.',
+        });
+        hideLoader();
+      });
+  }, [addToast, hideLoader, showLoader]);
 
   return (
     <Container maxWidth="xs">
@@ -153,7 +190,7 @@ const BookForm: React.FC = () => {
                 name="authorId"
                 control={control}
                 render={props => (
-                  <FormControl fullWidth variant="outlined">
+                  <FormControl fullWidth variant="outlined" required>
                     <InputLabel>Author</InputLabel>
                     <Select
                       error={!!errors.authorId}
