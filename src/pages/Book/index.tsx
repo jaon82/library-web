@@ -138,7 +138,10 @@ const BookForm: React.FC = () => {
     api
       .get<Author[]>(`/authors`)
       .then(response => {
-        setAuthors(response.data);
+        const authorsSorted = response.data.sort((a, b) => {
+          return a.firstName.localeCompare(b.firstName);
+        });
+        setAuthors(authorsSorted);
         hideLoader();
       })
       .catch(() => {
@@ -214,7 +217,7 @@ const BookForm: React.FC = () => {
                       </MenuItem>
                       {authors.map(item => (
                         <MenuItem value={Number(item.id)} key={Number(item.id)}>
-                          {`${item.firstName} ${item.lastName}`}
+                          {`${item.id} - ${item.firstName} ${item.lastName}`}
                         </MenuItem>
                       ))}
                     </Select>
