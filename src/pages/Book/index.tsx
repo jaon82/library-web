@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
@@ -7,13 +7,10 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import MenuBook from '@material-ui/icons/MenuBook';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import FormControl from '@material-ui/core/FormControl';
-import FormLabel from '@material-ui/core/FormLabel';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Book from '../../interfaces/Book';
 import api from '../../services/api';
 
@@ -37,9 +34,14 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
+interface RouteParams {
+  id: string;
+}
+
 const BookForm: React.FC = () => {
   const classes = useStyles();
   const history = useHistory();
+  const params = useParams<RouteParams>();
 
   const defaultValues = {
     title: '',
@@ -51,20 +53,43 @@ const BookForm: React.FC = () => {
     isbn: yup.string().required(),
   });
 
-  const { control, handleSubmit, errors } = useForm({
+  const { control, handleSubmit, errors, reset } = useForm({
     resolver: yupResolver(schema),
     defaultValues,
     mode: 'onChange',
   });
 
   const onSubmit = async (data: Book) => {
-    await api.post(`/books`, data);
+    if (params.id) {
+      const book = { ...data, id: Number(params.id) };
+      await api.put(`/books/${params.id}`, book);
+    } else {
+      await api.post(`/books`, data);
+    }
     history.push('/');
   };
 
   const handleCancel = useCallback(() => {
     history.push('/');
   }, [history]);
+
+  useEffect(() => {
+    if (params.id) {
+      api.get<Book>(`/books/${params.id}`).then(response => {
+        const book = response.data;
+        if (!book) {
+          history.push('/');
+        } else {
+          const bookValues = {
+            id: book.id,
+            title: book.title,
+            isbn: book.isbn,
+          };
+          reset(bookValues);
+        }
+      });
+    }
+  }, [history, params.id, reset]);
 
   return (
     <Container maxWidth="xs">
@@ -91,6 +116,7 @@ const BookForm: React.FC = () => {
                 variant="outlined"
                 fullWidth
                 autoFocus
+                required
                 error={!!errors.title}
               />
             </Grid>
@@ -103,6 +129,7 @@ const BookForm: React.FC = () => {
                 variant="outlined"
                 fullWidth
                 label="ISBN"
+                required
                 error={!!errors.isbn}
               />
             </Grid>
