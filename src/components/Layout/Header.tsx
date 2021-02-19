@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -7,7 +7,7 @@ import BottomNavigation from '@material-ui/core/BottomNavigation';
 import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
 import MenuBook from '@material-ui/icons/MenuBook';
 import LocalLibrary from '@material-ui/icons/LocalLibrary';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -17,7 +17,6 @@ const useStyles = makeStyles(() => ({
     flexGrow: 1,
   },
   navigation: {
-    flexGrow: 1,
     background: 'transparent',
   },
   bottomNavigation: {
@@ -32,6 +31,7 @@ const Header: React.FC = () => {
   const classes = useStyles();
   const [value, setValue] = useState(0);
   const history = useHistory();
+  const location = useLocation();
 
   const goToBooks = useCallback(() => {
     history.push('/');
@@ -40,6 +40,10 @@ const Header: React.FC = () => {
   const goToAuthors = useCallback(() => {
     history.push('/authors');
   }, [history]);
+
+  useEffect(() => {
+    setValue(location.pathname.startsWith('/author') ? 1 : 0);
+  }, [location]);
 
   return (
     <div className={classes.root}>

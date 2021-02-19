@@ -98,7 +98,7 @@ const Dashboard: React.FC = () => {
         actions={[
           {
             icon: 'add',
-            tooltip: 'Adicionar Livro',
+            tooltip: 'Adicionar',
             isFreeAction: true,
             onClick: () => history.push('/book'),
           },
