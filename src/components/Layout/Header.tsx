@@ -1,8 +1,13 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
+import BottomNavigation from '@material-ui/core/BottomNavigation';
+import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
+import MenuBook from '@material-ui/icons/MenuBook';
+import LocalLibrary from '@material-ui/icons/LocalLibrary';
+import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -11,10 +16,30 @@ const useStyles = makeStyles(() => ({
   title: {
     flexGrow: 1,
   },
+  navigation: {
+    flexGrow: 1,
+    background: 'transparent',
+  },
+  bottomNavigation: {
+    color: '#fff7',
+    '&.Mui-selected': {
+      color: '#fff',
+    },
+  },
 }));
 
 const Header: React.FC = () => {
   const classes = useStyles();
+  const [value, setValue] = useState(0);
+  const history = useHistory();
+
+  const goToBooks = useCallback(() => {
+    history.push('/');
+  }, [history]);
+
+  const goToAuthors = useCallback(() => {
+    history.push('/authors');
+  }, [history]);
 
   return (
     <div className={classes.root}>
@@ -23,6 +48,31 @@ const Header: React.FC = () => {
           <Typography variant="h6" className={classes.title}>
             Library
           </Typography>
+          <BottomNavigation
+            value={value}
+            onChange={(event, newValue) => {
+              setValue(newValue);
+            }}
+            showLabels
+            className={classes.navigation}
+          >
+            <BottomNavigationAction
+              label="Livros"
+              icon={<MenuBook />}
+              classes={{
+                root: classes.bottomNavigation,
+              }}
+              onClick={goToBooks}
+            />
+            <BottomNavigationAction
+              label="Autores"
+              icon={<LocalLibrary />}
+              classes={{
+                root: classes.bottomNavigation,
+              }}
+              onClick={goToAuthors}
+            />
+          </BottomNavigation>
         </Toolbar>
       </AppBar>
     </div>
