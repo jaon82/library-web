@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
@@ -6,16 +6,11 @@ import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import MenuBook from '@material-ui/icons/MenuBook';
+import LocalLibrary from '@material-ui/icons/LocalLibrary';
 import { useHistory, useParams } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import InputLabel from '@material-ui/core/InputLabel';
-import Book from '../../interfaces/Book';
 import api from '../../services/api';
 import Author from '../../interfaces/Author';
 import { useLoader } from '../../hooks/loader';
@@ -45,24 +40,21 @@ interface RouteParams {
   id: string;
 }
 
-const BookForm: React.FC = () => {
+const AuthorForm: React.FC = () => {
   const classes = useStyles();
   const history = useHistory();
   const { showLoader, hideLoader } = useLoader();
   const { addToast } = useToast();
   const params = useParams<RouteParams>();
-  const [authors, setAuthors] = useState<Author[]>([]);
 
   const defaultValues = {
-    title: '',
-    isbn: '',
-    authorId: 0,
+    firstName: '',
+    lastName: '',
   };
 
   const schema = yup.object().shape({
-    title: yup.string().required(),
-    isbn: yup.string().required(),
-    authorId: yup.number().positive().required(),
+    firstName: yup.string().required(),
+    lastName: yup.string().required(),
   });
 
   const { control, handleSubmit, errors, reset } = useForm({
@@ -71,26 +63,26 @@ const BookForm: React.FC = () => {
     mode: 'onChange',
   });
 
-  const onSubmit = async (data: Book) => {
+  const onSubmit = async (data: Author) => {
     try {
       showLoader();
       if (params.id) {
-        const book = { ...data, id: Number(params.id) };
-        await api.put(`/books/${params.id}`, book);
+        const author = { ...data, id: Number(params.id) };
+        await api.put(`/authors/${params.id}`, author);
         addToast({
           type: 'success',
           title: 'Edição realizada!',
-          description: 'Livro alterado com sucesso',
+          description: 'Autor alterado com sucesso',
         });
       } else {
-        await api.post(`/books`, data);
+        await api.post(`/authors`, data);
         addToast({
           type: 'success',
           title: 'Cadastro realizado!',
-          description: 'Livro cadastrado com sucesso',
+          description: 'Autor cadastrado com sucesso',
         });
       }
-      history.push('/');
+      history.push('/authors');
     } catch {
       addToast({
         type: 'error',
@@ -103,59 +95,40 @@ const BookForm: React.FC = () => {
   };
 
   const handleCancel = useCallback(() => {
-    history.push('/');
+    history.push('/authors');
   }, [history]);
 
   useEffect(() => {
     if (params.id) {
-      api.get<Book>(`/books/${params.id}`).then(response => {
-        const book = response.data;
-        if (!book) {
-          history.push('/');
+      api.get<Author>(`/authors/${params.id}`).then(response => {
+        const author = response.data;
+        if (!author) {
+          history.push('/authors');
         } else {
-          const bookValues = {
-            id: book.id,
-            title: book.title,
-            isbn: book.isbn,
-            authorId: Number(book.authorId),
+          const authorValues = {
+            id: author.id,
+            firstName: author.firstName,
+            lastName: author.lastName,
           };
-          reset(bookValues);
+          reset(authorValues);
         }
       });
     }
   }, [history, params.id, reset]);
 
   const formTitle = useMemo(() => {
-    let title = 'Adicionar Livro';
+    let title = 'Adicionar Autor';
     if ('id' in params) {
-      title = 'Editar Livro';
+      title = 'Editar Autor';
     }
     return title;
   }, [params]);
-
-  useEffect(() => {
-    showLoader();
-    api
-      .get<Author[]>(`/authors`)
-      .then(response => {
-        setAuthors(response.data);
-        hideLoader();
-      })
-      .catch(() => {
-        addToast({
-          type: 'error',
-          title: 'Erro na requisição',
-          description: 'Ocorreu um erro ao buscar os dados, tente novamente.',
-        });
-        hideLoader();
-      });
-  }, [addToast, hideLoader, showLoader]);
 
   return (
     <Container maxWidth="xs">
       <div className={classes.paper}>
         <Avatar className={classes.avatar}>
-          <MenuBook />
+          <LocalLibrary />
         </Avatar>
         <Typography component="h1" variant="h5">
           {formTitle}
@@ -169,57 +142,26 @@ const BookForm: React.FC = () => {
             <Grid item xs={12}>
               <Controller
                 as={<TextField />}
-                name="title"
+                name="firstName"
                 control={control}
-                defaultValue=""
-                label="Título"
+                label="Nome"
                 variant="outlined"
                 fullWidth
                 autoFocus
                 required
-                error={!!errors.title}
+                error={!!errors.firstName}
               />
             </Grid>
             <Grid item xs={12}>
               <Controller
                 as={<TextField />}
-                name="isbn"
+                name="lastName"
                 control={control}
-                defaultValue=""
                 variant="outlined"
                 fullWidth
-                label="ISBN"
+                label="Sobrenome"
                 required
-                error={!!errors.isbn}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Controller
-                name="authorId"
-                control={control}
-                render={props => (
-                  <FormControl fullWidth variant="outlined" required>
-                    <InputLabel>Autor</InputLabel>
-                    <Select
-                      error={!!errors.authorId}
-                      required
-                      label="Autor"
-                      onChange={e => {
-                        props.onChange(e.target.value);
-                      }}
-                      value={props.value}
-                    >
-                      <MenuItem value="0">
-                        <em>None</em>
-                      </MenuItem>
-                      {authors.map(item => (
-                        <MenuItem value={Number(item.id)} key={Number(item.id)}>
-                          {`${item.firstName} ${item.lastName}`}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                )}
+                error={!!errors.lastName}
               />
             </Grid>
           </Grid>
@@ -253,4 +195,4 @@ const BookForm: React.FC = () => {
   );
 };
 
-export default BookForm;
+export default AuthorForm;
