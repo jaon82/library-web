@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
@@ -11,8 +11,13 @@ import { useHistory, useParams } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
 import Book from '../../interfaces/Book';
 import api from '../../services/api';
+import Author from '../../interfaces/Author';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -42,15 +47,18 @@ const BookForm: React.FC = () => {
   const classes = useStyles();
   const history = useHistory();
   const params = useParams<RouteParams>();
+  const [authors, setAuthors] = useState<Author[]>([]);
 
   const defaultValues = {
     title: '',
     isbn: '',
+    authorId: 0,
   };
 
   const schema = yup.object().shape({
     title: yup.string().required(),
     isbn: yup.string().required(),
+    authorId: yup.number().positive().required(),
   });
 
   const { control, handleSubmit, errors, reset } = useForm({
@@ -84,12 +92,19 @@ const BookForm: React.FC = () => {
             id: book.id,
             title: book.title,
             isbn: book.isbn,
+            authorId: Number(book.authorId),
           };
           reset(bookValues);
         }
       });
     }
   }, [history, params.id, reset]);
+
+  useEffect(() => {
+    api.get<Author[]>(`/authors`).then(response => {
+      setAuthors(response.data);
+    });
+  }, []);
 
   return (
     <Container maxWidth="xs">
@@ -131,6 +146,35 @@ const BookForm: React.FC = () => {
                 label="ISBN"
                 required
                 error={!!errors.isbn}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Controller
+                name="authorId"
+                control={control}
+                render={props => (
+                  <FormControl fullWidth variant="outlined">
+                    <InputLabel>Author</InputLabel>
+                    <Select
+                      error={!!errors.authorId}
+                      required
+                      label="Author"
+                      onChange={e => {
+                        props.onChange(e.target.value);
+                      }}
+                      value={props.value}
+                    >
+                      <MenuItem value="0">
+                        <em>None</em>
+                      </MenuItem>
+                      {authors.map(item => (
+                        <MenuItem value={Number(item.id)} key={Number(item.id)}>
+                          {`${item.firstName} ${item.lastName}`}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                )}
               />
             </Grid>
           </Grid>

@@ -54,7 +54,8 @@
     "prettier/prettier": "error",
     "@typescript-eslint/ban-types": "off",
     "no-unused-expressions": "off",
-    "import/no-duplicates": "off"
+    "import/no-duplicates": "off",
+    "@typescript-eslint/no-explicit-any": "off"
   },
   "settings": {
     "import/resolver": {
