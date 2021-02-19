@@ -36,10 +36,8 @@ const ConformationDialog: React.FC<Props> = props => {
         <DialogContentText>{text}</DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button autoFocus onClick={handleClose} color="primary">
-          Cancel
-        </Button>
-        <Button onClick={handleConfirm} color="secondary" autoFocus>
+        <Button onClick={handleClose}>Cancel</Button>
+        <Button onClick={handleConfirm} color="primary">
           Confirm
         </Button>
       </DialogActions>
