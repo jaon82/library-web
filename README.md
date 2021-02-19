@@ -16,7 +16,7 @@ Para instalar as dependências.
 Para rodar a aplicação em modo de desenvolvimento.\
 Abra [http://localhost:3000](http://localhost:3000) para a acessar no browser.
 
-### `yarn build`
+### `yarn build` ou `npm run-script build`
 
 Gera um build da aplicação no diretório `build`.
 
