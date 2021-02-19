@@ -36,7 +36,7 @@ const Dashboard: React.FC = () => {
 
   const deleteBook = useCallback((title: string, id: number) => {
     setBookToRemove(id);
-    setDialogText(`Do you want to remove the book ${title}?`);
+    setDialogText(`Deseja remover o livro ${title}?`);
     setDialogOpen(true);
   }, []);
 
