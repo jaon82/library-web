@@ -1,0 +1,8 @@
+version: '3.2'
+services:
+  library-web:
+    ports:
+      - 3000:80
+    build:
+      context: .
+      dockerfile: Dockerfile
