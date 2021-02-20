@@ -4,10 +4,15 @@ Projeto criado utilizando [Create React App](https://github.com/facebook/create-
 
 ## Scripts
 
-Utilize o arquivo .env para alterar a URL da api. Valor padrão: http://localhost:8080
+Utilize o arquivo `.env` para alterar a URL da api. Valor padrão: http://localhost:8080
 
 No diretório do projeto, executar:
 
+### `docker-compose up`
+Para iniciar a aplicação através do [Docker Compose](https://docs.docker.com/compose/).\
+Abra [http://localhost:3000](http://localhost:3000) para a acessar no browser.
+
+### Ou
 ### `yarn` ou  `npm install`
 Para instalar as dependências.
 
