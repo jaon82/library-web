@@ -14,6 +14,13 @@ let theme = createMuiTheme({
       main: '#004b50',
     },
   },
+  overrides: {
+    MuiTableSortLabel: {
+      icon: {
+        opacity: 0.1,
+      },
+    },
+  },
 });
 theme = responsiveFontSizes(theme);
 
