@@ -6,6 +6,7 @@ import Book from '../../interfaces/Book';
 import ConfirmationDialog from '../../components/ConfirmationDialog';
 import { useLoader } from '../../hooks/loader';
 import { useToast } from '../../hooks/toast';
+import TableHelper from '../../helpers/TableHelper';
 
 const Dashboard: React.FC = () => {
   const history = useHistory();
@@ -115,7 +116,7 @@ const Dashboard: React.FC = () => {
               history.push(`/book/${rowData.id}`),
           },
         ]}
-        localization={{ header: { actions: '' } }}
+        localization={TableHelper.localization}
       />
       <ConfirmationDialog
         open={dialogOpen}

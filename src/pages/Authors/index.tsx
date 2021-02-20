@@ -6,6 +6,7 @@ import ConfirmationDialog from '../../components/ConfirmationDialog';
 import { useLoader } from '../../hooks/loader';
 import { useToast } from '../../hooks/toast';
 import Author from '../../interfaces/Author';
+import TableHelper from '../../helpers/TableHelper';
 
 const Authors: React.FC = () => {
   const history = useHistory();
@@ -125,7 +126,7 @@ const Authors: React.FC = () => {
               history.push(`/author/${rowData.id}`),
           },
         ]}
-        localization={{ header: { actions: '' } }}
+        localization={TableHelper.localization}
       />
       <ConfirmationDialog
         open={dialogOpen}
